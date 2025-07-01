@@ -98,451 +98,222 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             padding: 30px;
             position: relative;
-            overflow: hidden;
         }
         
-        .loading-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255,255,255,0.9);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s;
+        .news-article {
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            padding: 20px 0;
+            transition: transform 0.3s;
+            cursor: pointer;
         }
         
-        .loading-overlay.active {
-            opacity: 1;
-            visibility: visible;
+        .news-article:last-child {
+            border-bottom: none;
         }
         
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #e3f2fd;
-            border-top: 4px solid #2196f3;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 15px;
+        .news-article:hover {
+            transform: translateX(10px);
         }
         
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .news-item {
-            border-left: 4px solid #2196f3;
-            padding: 20px;
-            margin-bottom: 20px;
-            background: #f8f9fa;
-            border-radius: 0 10px 10px 0;
-            transition: all 0.3s;
-            animation: slideIn 0.5s ease-out;
-        }
-        
-        .news-item:hover {
-            transform: translateX(5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .news-item:nth-child(1) { border-left-color: #f44336; }
-        .news-item:nth-child(2) { border-left-color: #ff9800; }
-        .news-item:nth-child(3) { border-left-color: #4caf50; }
-        .news-item:nth-child(4) { border-left-color: #2196f3; }
-        .news-item:nth-child(5) { border-left-color: #9c27b0; }
-        
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .news-meta {
+        .article-meta {
             display: flex;
             align-items: center;
             gap: 15px;
             margin-bottom: 10px;
-            font-size: 0.9em;
+        }
+        
+        .article-date {
             color: #666;
+            font-size: 0.9em;
         }
         
-        .news-date {
-            background: #2196f3;
+        .article-source {
+            background: #f0f0f0;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            color: #444;
+        }
+        
+        .article-category {
+            font-weight: bold;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
             color: white;
-            padding: 4px 12px;
-            border-radius: 15px;
-            font-weight: bold;
         }
         
-        .news-source {
-            background: #e3f2fd;
-            color: #1976d2;
-            padding: 4px 12px;
-            border-radius: 15px;
-            font-weight: bold;
-        }
+        /* Category tags styling */
+        .category-breakthrough { background: #4285f4; }
+        .category-industry { background: #34a853; }
+        .category-policy { background: #ea4335; }
+        .category-research { background: #9333ea; }
+        .category-ethics { background: #fbbc05; }
+        .category-innovation { background: #00acc1; }
         
-        .news-category {
-            background: #f3e5f5;
-            color: #7b1fa2;
-            padding: 4px 12px;
-            border-radius: 15px;
-            font-weight: bold;
-        }
-        
-        .news-headline {
-            font-size: 1.3em;
-            font-weight: bold;
+        .article-headline {
+            font-size: 1.2em;
             color: #333;
-            margin-bottom: 12px;
+            margin-top: 8px;
             line-height: 1.4;
         }
         
-        .news-description {
-            color: #555;
-            line-height: 1.6;
-            font-size: 1em;
-        }
-        
-        .error-message {
-            background: #ffebee;
-            border: 1px solid #ffcdd2;
-            color: #c62828;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            margin: 20px 0;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
+        .article-headline span {
             color: #666;
-        }
-        
-        .empty-state h3 {
-            color: #333;
-            margin-bottom: 10px;
-        }
-        
-        /* Auto-refresh indicator */
-        .auto-refresh {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(76, 175, 80, 0.9);
-            color: white;
-            padding: 10px 15px;
-            border-radius: 25px;
             font-size: 0.9em;
-            z-index: 100;
-            opacity: 0;
-            transform: translateY(-20px);
-            transition: all 0.3s;
+            margin-left: 8px;
         }
         
-        .auto-refresh.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        /* Responsive design */
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
             .header h1 {
                 font-size: 2em;
             }
             
-            .header .tags {
+            .news-container {
+                padding: 20px;
+            }
+            
+            .article-meta {
                 flex-wrap: wrap;
             }
             
-            .news-meta {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
-            
-            .news-headline {
+            .article-headline {
                 font-size: 1.1em;
-            }
-            
-            .container {
-                padding: 10px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>🤖 AI News Ticker</h1>
+        <header class="header">
+            <h1>AI News Ticker</h1>
             <div class="tags">
-                <span class="tag google">🔍 GOOGLE ADK</span>
-                <span class="tag live">🟢 LIVE</span>
-                <span class="tag news">📰 NEWS</span>
-                <span class="tag gemini">✨ GEMINI</span>
+                <div class="tag google">Google ADK</div>
+                <div class="tag live">Live News</div>
+                <div class="tag gemini">Gemini AI</div>
             </div>
-            <p class="subtitle">Your real-time window into the world of technology. Get instant updates on software development, AI breakthroughs, and tech innovations as they happen.</p>
             <div class="last-refresh">
-                <span>🕒 Last Refresh: <span id="lastRefreshTime">Loading...</span></span>
+                Last refreshed: <span id="last-refresh">Never</span>
+                <button id="refresh-btn" class="refresh-btn" onclick="refreshNews()">
+                    Refresh News
+                </button>
             </div>
-            <button class="refresh-btn" onclick="refreshNews()" id="refreshBtn">🔄 Refresh News</button>
-        </div>
-        
-        <div class="news-container">
-            <div class="loading-overlay" id="loadingOverlay">
-                <div class="spinner"></div>
-                <span>Fetching latest AI news...</span>
+        </header>
+
+        <main class="news-container" id="news-container">
+            <div id="loading" style="text-align: center; padding: 20px;">
+                Loading news...
             </div>
-            
-            <div id="newsContent">
-                <div class="empty-state">
-                    <h3>Loading Latest AI News...</h3>
-                    <p>Please wait while we fetch the most recent AI developments for you.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="auto-refresh" id="autoRefreshIndicator">
-        🔄 Auto-refreshing news...
+        </main>
     </div>
 
     <script>
-        let refreshInterval;
-        const AUTO_REFRESH_MINUTES = 5; // Auto-refresh every 5 minutes
+        let isRefreshing = false;
         
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            loadNews(true); // Show loading overlay on initial page load
-            startAutoRefresh();
-        });
-        
-        function startAutoRefresh() {
-            refreshInterval = setInterval(() => {
-                showAutoRefreshIndicator();
-                loadNews(false); // Auto-refresh without loading overlay
-            }, AUTO_REFRESH_MINUTES * 60 * 1000);
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
         }
         
-        function showAutoRefreshIndicator() {
-            const indicator = document.getElementById('autoRefreshIndicator');
-            indicator.classList.add('show');
-            setTimeout(() => {
-                indicator.classList.remove('show');
-            }, 3000);
-        }
-        
-        async function loadNews(showLoading = false) {
-            const loadingOverlay = document.getElementById('loadingOverlay');
-            const newsContent = document.getElementById('newsContent');
-            const refreshBtn = document.getElementById('refreshBtn');
-            
-            try {
-                // Only show loading overlay on initial load
-                if (showLoading) {
-                    loadingOverlay.classList.add('active');
-                }
-                
-                // Always disable refresh button during loading
-                refreshBtn.disabled = true;
-                refreshBtn.textContent = '🔄 Loading...';
-                
-                const response = await fetch('/api/news');
-                const data = await response.json();
-                
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-                
-                displayNews(data.news);
-                updateLastRefreshTime();
-                
-            } catch (error) {
-                console.error('Error loading news:', error);
-                displayError(`Failed to load news: ${error.message}`);
-            } finally {
-                // Always remove loading overlay and reset button
-                loadingOverlay.classList.remove('active');
-                refreshBtn.disabled = false;
-                refreshBtn.textContent = '🔄 Refresh News';
+        function getCategoryClass(category) {
+            category = category.toLowerCase();
+            if (['breakthrough', 'industry', 'policy', 'research', 'ethics', 'innovation'].includes(category)) {
+                return `category-${category}`;
             }
+            return 'category-innovation';
         }
         
-        function displayNews(newsData) {
-            const newsContent = document.getElementById('newsContent');
+        function extractCategory(headline) {
+            const match = headline.match(/\[(.*?)\]/);
+            return match ? match[1] : 'Innovation';
+        }
+        
+        function formatHeadline(headline) {
+            return headline.replace(/\[(.*?)\]\s*/, '').trim();
+        }
+        
+        function createNewsArticle(article) {
+            const category = extractCategory(article.headline);
+            const formattedHeadline = formatHeadline(article.headline);
             
-            // Parse the news data and create HTML
-            const newsItems = parseNewsData(newsData);
-            
-            if (newsItems.length === 0) {
-                newsContent.innerHTML = `
-                    <div class="empty-state">
-                        <h3>No News Available</h3>
-                        <p>No recent AI news found. Please try refreshing in a moment.</p>
+            return `
+                <article class="news-article">
+                    <div class="article-meta">
+                        <span class="article-date">${formatDate(article.date)}</span>
+                        <span class="article-source">${article.source}</span>
+                        <span class="article-category ${getCategoryClass(category)}">${category}</span>
                     </div>
-                `;
-                return;
-            }
-            
-            const newsHTML = newsItems.map((item, index) => `
-                <div class="news-item" style="animation-delay: ${index * 0.1}s">
-                    <div class="news-meta">
-                        <span class="news-date">${item.date}</span>
-                        <span class="news-source">${item.source}</span>
-                        <span class="news-category">Technology</span>
-                    </div>
-                    <div class="news-headline">${item.headline}</div>
-                    <div class="news-description">${item.description}</div>
-                </div>
-            `).join('');
-            
-            newsContent.innerHTML = newsHTML;
-        }
-        
-        function parseNewsData(newsData) {
-            // Parse the agent response to extract structured news data
-            const items = [];
-            
-            try {
-                console.log('Raw news data:', newsData); // Debug logging
-                
-                // Split by double newlines first, then by Date: pattern
-                let sections = newsData.split(/\n\s*\n/);
-                
-                // If that doesn't work, try splitting by Date: pattern
-                if (sections.length < 2) {
-                    sections = newsData.split(/(?=Date:\s*)/i);
-                }
-                
-                console.log('Parsed sections:', sections.length); // Debug logging
-                
-                for (let section of sections) {
-                    section = section.trim();
-                    if (section.length === 0) continue;
-                    
-                    const dateMatch = section.match(/Date:\s*([^\n\r]+)/i);
-                    const sourceMatch = section.match(/Source:\s*([^\n\r]+)/i);
-                    const headlineMatch = section.match(/Headline:\s*([^\n\r]+)/i);
-                    const descMatch = section.match(/Description:\s*([^]*?)(?=\n\s*Date:|$)/i);
-                    
-                    if (dateMatch && sourceMatch && headlineMatch && descMatch) {
-                        const item = {
-                            date: dateMatch[1].trim(),
-                            source: sourceMatch[1].trim(),
-                            headline: headlineMatch[1].trim(),
-                            description: descMatch[1].trim().replace(/\n+/g, ' ')
-                        };
-                        items.push(item);
-                        console.log('Parsed item:', item); // Debug logging
-                    }
-                }
-                
-                // If parsing fails, try alternative parsing
-                if (items.length === 0) {
-                    console.log('Alternative parsing...'); // Debug logging
-                    const lines = newsData.split('\n');
-                    let currentItem = {};
-                    
-                    for (let line of lines) {
-                        line = line.trim();
-                        if (line.startsWith('Date:')) {
-                            if (Object.keys(currentItem).length > 0) {
-                                items.push(currentItem);
-                            }
-                            currentItem = { date: line.replace('Date:', '').trim() };
-                        } else if (line.startsWith('Source:')) {
-                            currentItem.source = line.replace('Source:', '').trim();
-                        } else if (line.startsWith('Headline:')) {
-                            currentItem.headline = line.replace('Headline:', '').trim();
-                        } else if (line.startsWith('Description:')) {
-                            currentItem.description = line.replace('Description:', '').trim();
-                        } else if (currentItem.description && line.length > 0) {
-                            currentItem.description += ' ' + line;
-                        }
-                    }
-                    
-                    if (Object.keys(currentItem).length > 0) {
-                        items.push(currentItem);
-                    }
-                }
-                
-                // If still no items, create a fallback
-                if (items.length === 0) {
-                    items.push({
-                        date: new Date().toLocaleDateString(),
-                        source: 'AI News Assistant',
-                        headline: 'Latest AI News Update',
-                        description: newsData.substring(0, 300) + '...'
-                    });
-                }
-                
-                // Sort by date (newest first) and limit to 5 items
-                const sortedItems = items
-                    .filter(item => item.date && item.source && item.headline && item.description)
-                    .sort((a, b) => {
-                        const dateA = new Date(a.date);
-                        const dateB = new Date(b.date);
-                        return dateB - dateA; // Newest first
-                    })
-                    .slice(0, 5);
-                
-                console.log('Final parsed items:', sortedItems); // Debug logging
-                return sortedItems;
-                
-            } catch (error) {
-                console.error('Error parsing news data:', error);
-                return [{
-                    date: new Date().toLocaleDateString(),
-                    source: 'AI News Assistant',
-                    headline: 'AI News Update',
-                    description: 'Latest AI developments and technology news.'
-                }];
-            }
-        }
-        
-        function displayError(message) {
-            const newsContent = document.getElementById('newsContent');
-            newsContent.innerHTML = `
-                <div class="error-message">
-                    <strong>Error:</strong> ${message}
-                    <br><br>
-                    <button onclick="loadNews(false)" style="background: #2196f3; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
-                        Try Again
-                    </button>
-                </div>
+                    <h2 class="article-headline">${formattedHeadline}</h2>
+                </article>
             `;
         }
         
-        function updateLastRefreshTime() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString();
-            document.getElementById('lastRefreshTime').textContent = timeString;
+        function updateNews(news) {
+            const newsContainer = document.getElementById('news-container');
+            if (!news || news.length === 0) {
+                newsContainer.innerHTML = '<div style="text-align: center; padding: 20px;">No news available at the moment.</div>';
+                return;
+            }
+            
+            const articlesHTML = news.map(createNewsArticle).join('');
+            newsContainer.innerHTML = articlesHTML;
         }
         
         async function refreshNews() {
-            // Manual refresh - no loading overlay, just update content
-            await loadNews(false);
+            if (isRefreshing) return;
+            
+            const refreshBtn = document.getElementById('refresh-btn');
+            refreshBtn.disabled = true;
+            isRefreshing = true;
+            
+            document.getElementById('loading').style.display = 'block';
+            
+            try {
+                const response = await fetch('/api/refresh');
+                if (!response.ok) throw new Error('Failed to refresh news');
+                await loadNews();
+            } catch (error) {
+                console.error('Error refreshing news:', error);
+                document.getElementById('news-container').innerHTML = 
+                    '<div style="text-align: center; padding: 20px; color: red;">Error refreshing news. Please try again later.</div>';
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                refreshBtn.disabled = false;
+                isRefreshing = false;
+            }
         }
         
-        // Cleanup on page unload
-        window.addEventListener('beforeunload', function() {
-            if (refreshInterval) {
-                clearInterval(refreshInterval);
+        async function loadNews() {
+            try {
+                const response = await fetch('/api/news');
+                if (!response.ok) throw new Error('Failed to load news');
+                
+                const news = await response.json();
+                updateNews(news);
+                
+                document.getElementById('last-refresh').textContent = new Date().toLocaleTimeString();
+            } catch (error) {
+                console.error('Error loading news:', error);
+                document.getElementById('news-container').innerHTML = 
+                    '<div style="text-align: center; padding: 20px; color: red;">Error loading news. Please try again later.</div>';
             }
-        });
+        }
+        
+        // Auto-refresh every 5 minutes
+        setInterval(loadNews, 5 * 60 * 1000);
+        
+        // Initial load
+        loadNews();
     </script>
 </body>
 </html>

@@ -191,6 +191,31 @@ Description: A new open-source artificial intelligence framework is being adopte
             loop.close()
         return f"Error: {str(e)}"
 
+def parse_news_data(news_text):
+    """Parse news data from agent response into structured format"""
+    news_items = []
+    current_item = {}
+    
+    # Split by double newline to separate articles
+    articles = [article.strip() for article in news_text.split('\n\n') if article.strip()]
+    
+    for article in articles:
+        lines = [line.strip() for line in article.split('\n') if line.strip()]
+        if len(lines) >= 3:  # Ensure we have at least date, source, and headline
+            for line in lines:
+                if line.startswith('Date:'):
+                    current_item['date'] = line.replace('Date:', '').strip()
+                elif line.startswith('Source:'):
+                    current_item['source'] = line.replace('Source:', '').strip()
+                elif line.startswith('Headline:'):
+                    current_item['headline'] = line.replace('Headline:', '').strip()
+            
+            if all(key in current_item for key in ['date', 'source', 'headline']):
+                news_items.append(current_item.copy())
+                current_item = {}
+    
+    return news_items
+
 @app.route('/')
 def index():
     """Serve the main page"""
@@ -203,15 +228,14 @@ def get_news():
         print("Getting news request...")  # Debug logging
         
         # Get response from agent with a specific news request
-        agent_response = run_agent_sync("Get me exactly 5 of the most recent AI news articles published TODAY (July 1, 2025) or within the last 24-48 hours. Include exact publication dates, sources, headlines, and detailed descriptions. Prioritize breaking news and current developments. Sort them by publication date with the newest first.")
+        agent_response = run_agent_sync("Get me exactly 5 of the most recent AI news articles published TODAY (July 1, 2025) or within the last 24-48 hours. Include exact publication dates, sources, and impactful headlines. Prioritize breaking news and current developments. Sort them by publication date with the newest first.")
         
         print(f"Agent response received: {len(agent_response)} characters")  # Debug logging
         
-        return jsonify({
-            'news': agent_response,
-            'status': 'success',
-            'timestamp': str(datetime.now())
-        })
+        # Parse the news data into structured format
+        news_items = parse_news_data(agent_response)
+        
+        return jsonify(news_items)
         
     except Exception as e:
         print(f"Error in get_news: {str(e)}")  # Debug logging
