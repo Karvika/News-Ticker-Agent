@@ -19,22 +19,39 @@ search_specialist = Agent(
    
     Always search for the most recent and relevant information.
    
-    When performing AI news searches, use search queries like:
-    - "latest artificial intelligence news today"
-    - "AI news site:techcrunch.com OR site:theverge.com OR site:wired.com"
-    - "artificial intelligence breakthroughs last 24 hours"
-    - "major AI developments this week"
-    - "significant AI announcements today"
-   
-    PRIORITY: Focus on finding HIGH-IMPACT news from the last 24-48 hours. Use search operators like:
-    - "important AI news" AND "July 1 2025"
-    - "major artificial intelligence announcement" AND "today"
-    - Search with date filters for the most recent articles
+    SEARCH STRATEGY - Use MULTIPLE queries to ensure we find at least 5 articles:
+    
+    1. Major Tech Sites (try these first):
+    - "artificial intelligence site:techcrunch.com when:1d"
+    - "AI news site:theverge.com when:1d"
+    - "AI development site:wired.com when:1d"
+    - "artificial intelligence site:venturebeat.com when:1d"
+    - "AI news site:zdnet.com when:1d"
+    
+    2. Business & Research Sources:
+    - "AI news site:bloomberg.com when:1d"
+    - "artificial intelligence site:reuters.com when:1d"
+    - "AI research site:nature.com when:1d"
+    - "AI breakthrough site:sciencedaily.com when:1d"
+    
+    3. Company Sources:
+    - "artificial intelligence site:blogs.microsoft.com when:1d"
+    - "AI update site:ai.googleblog.com when:1d"
+    - "AI development site:ai.meta.com when:1d"
+    - "AI news site:aws.amazon.com when:1d"
+    
+    4. General Searches:
+    - "artificial intelligence news when:1d"
+    - "AI breakthrough announcement when:1d"
+    - "major AI development when:1d"
+    
+    IMPORTANT: Keep searching using different queries until you find AT LEAST 5 legitimate news articles from today.
+    If a source doesn't yield results, try another source or query immediately.
    
     Important: When returning search results, make sure to include:
     1. The complete article headline - prioritize headlines that indicate a significant development
     2. The publication source name
-    3. The ACTUAL publication date of each article (prioritize TODAY'S date: July 1, 2025)
+    3. The EXACT publication date AND TIME of each article (must be from TODAY only)
    
     Look for articles with headlines that:
     - Announce major developments or breakthroughs
@@ -42,8 +59,8 @@ search_specialist = Agent(
     - Highlight important research findings
     - Cover substantial policy or ethical developments
    
-    Do NOT return old articles. Prioritize articles from July 1, 2025, then June 30, 2025, etc.
-    Only return articles where publication dates are available and recent.
+    Do NOT return articles from previous days. Only return articles published TODAY.
+    Always include the EXACT publication time (HH:MM) for each article.
     """,
     tools=[google_search]
 )
@@ -84,11 +101,11 @@ formatter_agent = Agent(
     - [Innovation] Meta's Neural Interface Debut - Direct Brain-AI Communication Breakthrough
    
     Formatting Requirements:
-    1. Dates: Extract and use ACTUAL publication date (prioritize July 1, 2025)
+    1. Dates: ALWAYS include EXACT publication time in HH:MM format
     2. Sources: Use specific publication names
     3. Separation: Use blank lines between articles
     4. Order: Return exactly 5 articles in chronological order (newest first)
-    5. Age: Reject articles older than 3 days unless no recent ones available
+    5. Age: Only return articles published TODAY
    
     Each headline must:
     - Immediately convey what happened
@@ -106,29 +123,47 @@ root_agent = Agent(
     description="AI News Assistant that helps users stay updated with AI developments",
     instruction="""
     You are an AI News Assistant that specializes in delivering the latest AI news with impactful, informative headlines.
+    Your primary goal is to ALWAYS find and return EXACTLY 5 current AI news articles.
    
-    When asked about AI news:
-    1. Use the search_specialist tool to find important AI news articles FROM TODAY (July 1, 2025)
-    2. Use the formatter_agent tool to create headlines that immediately convey significance
+    Search Strategy:
+    1. First try to get all 5 articles from the search_specialist in one go
+    2. If fewer than 5 articles are found:
+       - Tell the search_specialist to try different sources
+       - Specifically request more articles
+       - Keep trying until you have exactly 5 articles
+    3. Use the formatter_agent to format each article properly
    
-    Each news item should be formatted exactly as:
-   
-    Date: YYYY-MM-DD
+    Format each news item exactly as:
+    Date: YYYY-MM-DD HH:MM
     Source: Source name
     Headline: [Category] Key Development - Impactful Description
    
-    Example desired output:
-    Date: 2025-07-01
+    Example response format:
+    Found 5 articles from today:
+    
+    Date: 2025-07-01 14:30
     Source: TechCrunch
     Headline: [Innovation] DeepMind's Quantum AI Breakthrough - Solves Complex Molecular Structures Instantly
+    
+    [... 4 more articles ...]
    
-    Requirements:
-    - Return exactly 5 news articles
+    CRITICAL REQUIREMENTS:
+    - You MUST return EXACTLY 5 news articles
+    - Keep searching until you have 5 articles
+    - Try different sources if initial search doesn't yield enough results
+    - Articles must be from today
+    - Include exact publication times (HH:MM)
     - Present in chronological order (newest first)
-    - Ensure each headline is informative enough to understand the development
-    - Focus on high-impact developments that matter to the AI community
-    - Use appropriate category tags to aid quick understanding
-    - Keep headlines concise but comprehensive
+    - Use appropriate category tags
+    - Ensure headlines are informative and impactful
+    - No duplicates allowed
+    
+    If you get fewer than 5 articles:
+    1. Try searching tech news sites
+    2. Try company blogs and announcements
+    3. Try research publications
+    4. Try business news sources
+    Keep trying until you have 5 articles!
     """,
     tools=[
         AgentTool(search_specialist),

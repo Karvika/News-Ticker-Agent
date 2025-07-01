@@ -89,30 +89,34 @@ def get_or_create_session():
 async def run_agent_async(user_message):
     """Run the agent asynchronously"""
     if not ADK_AVAILABLE:
-        return """Date: 2025-07-01
-Source: TechCrunch
-Headline: Major AI Breakthrough Announced by Leading Tech Company
-Description: Researchers have announced a significant advancement in artificial intelligence technology that could revolutionize how we interact with digital systems. The new approach promises improved efficiency and better user experiences.
+        current_time = datetime.now()
+        
+        # Generate realistic timestamps for today
+        time1 = current_time.replace(hour=current_time.hour, minute=current_time.minute)
+        time2 = current_time.replace(hour=max(0, current_time.hour - 1), minute=45)
+        time3 = current_time.replace(hour=max(0, current_time.hour - 2), minute=30)
+        time4 = current_time.replace(hour=max(0, current_time.hour - 3), minute=15)
+        time5 = current_time.replace(hour=max(0, current_time.hour - 4), minute=0)
+        
+        return f"""Date: {time1.strftime('%Y-%m-%d %H:%M')}
+Source: Mock Source 1
+Headline: [Test] Mock News 1 - This is a test headline
 
-Date: 2025-07-01
-Source: Wired
-Headline: AI Safety Measures Implemented Across Major Platforms
-Description: Technology companies are implementing new safety protocols for AI systems following recent regulatory guidelines. These measures aim to ensure responsible AI development and deployment across various industries.
+Date: {time2.strftime('%Y-%m-%d %H:%M')}
+Source: Mock Source 2
+Headline: [Test] Mock News 2 - This is another test headline
 
-Date: 2025-06-30
-Source: The Verge
-Headline: New AI Model Shows Promising Results in Healthcare Applications
-Description: A recently developed AI model has demonstrated exceptional performance in medical diagnosis and treatment planning. Clinical trials show significant improvements in accuracy and efficiency compared to traditional methods.
+Date: {time3.strftime('%Y-%m-%d %H:%M')}
+Source: Mock Source 3
+Headline: [Test] Mock News 3 - Yet another test headline
 
-Date: 2025-06-30
-Source: MIT Technology Review
-Headline: Quantum Computing Meets AI in Groundbreaking Research
-Description: Scientists have successfully integrated quantum computing principles with artificial intelligence algorithms, potentially unlocking new capabilities in machine learning and data processing.
+Date: {time4.strftime('%Y-%m-%d %H:%M')}
+Source: Mock Source 4
+Headline: [Test] Mock News 4 - One more test headline
 
-Date: 2025-06-29
-Source: IEEE Spectrum
-Headline: Open Source AI Framework Gains Industry Adoption
-Description: A new open-source artificial intelligence framework is being adopted by major technology companies, promising to democratize AI development and foster innovation across the industry."""
+Date: {time5.strftime('%Y-%m-%d %H:%M')}
+Source: Mock Source 5
+Headline: [Test] Mock News 5 - Final test headline"""
     
     try:
         # Use global session management
@@ -147,30 +151,34 @@ def run_agent_sync(user_message):
     """Run the agent in a synchronous context"""
     if not ADK_AVAILABLE:
         # Return mock data directly (not async)
-        return """Date: 2025-07-01
-Source: TechCrunch
-Headline: Major AI Breakthrough Announced by Leading Tech Company
-Description: Researchers have announced a significant advancement in artificial intelligence technology that could revolutionize how we interact with digital systems. The new approach promises improved efficiency and better user experiences.
+        current_time = datetime.now()
+        
+        # Generate realistic timestamps for today
+        time1 = current_time.replace(hour=current_time.hour, minute=current_time.minute)
+        time2 = current_time.replace(hour=max(0, current_time.hour - 1), minute=45)
+        time3 = current_time.replace(hour=max(0, current_time.hour - 2), minute=30)
+        time4 = current_time.replace(hour=max(0, current_time.hour - 3), minute=15)
+        time5 = current_time.replace(hour=max(0, current_time.hour - 4), minute=0)
+        
+        return f"""Date: {time1.strftime('%Y-%m-%d %H:%M')}
+Source: Mock Source 1
+Headline: [Test] Mock News 1 - This is a test headline
 
-Date: 2025-07-01
-Source: Wired
-Headline: AI Safety Measures Implemented Across Major Platforms
-Description: Technology companies are implementing new safety protocols for AI systems following recent regulatory guidelines. These measures aim to ensure responsible AI development and deployment across various industries.
+Date: {time2.strftime('%Y-%m-%d %H:%M')}
+Source: Mock Source 2
+Headline: [Test] Mock News 2 - This is another test headline
 
-Date: 2025-06-30
-Source: The Verge
-Headline: New AI Model Shows Promising Results in Healthcare Applications
-Description: A recently developed AI model has demonstrated exceptional performance in medical diagnosis and treatment planning. Clinical trials show significant improvements in accuracy and efficiency compared to traditional methods.
+Date: {time3.strftime('%Y-%m-%d %H:%M')}
+Source: Mock Source 3
+Headline: [Test] Mock News 3 - Yet another test headline
 
-Date: 2025-06-30
-Source: MIT Technology Review
-Headline: Quantum Computing Meets AI in Groundbreaking Research
-Description: Scientists have successfully integrated quantum computing principles with artificial intelligence algorithms, potentially unlocking new capabilities in machine learning and data processing.
+Date: {time4.strftime('%Y-%m-%d %H:%M')}
+Source: Mock Source 4
+Headline: [Test] Mock News 4 - One more test headline
 
-Date: 2025-06-29
-Source: IEEE Spectrum
-Headline: Open Source AI Framework Gains Industry Adoption
-Description: A new open-source artificial intelligence framework is being adopted by major technology companies, promising to democratize AI development and foster innovation across the industry."""
+Date: {time5.strftime('%Y-%m-%d %H:%M')}
+Source: Mock Source 5
+Headline: [Test] Mock News 5 - Final test headline"""
         
     try:
         print(f"Running agent with message: {user_message[:100]}...")  # Debug logging
@@ -226,9 +234,17 @@ def get_news():
     """Get latest AI news"""
     try:
         print("Getting news request...")  # Debug logging
+        print(f"Using {'MOCK' if not ADK_AVAILABLE else 'REAL'} data mode")  # Debug mode indicator
         
         # Get response from agent with a specific news request
-        agent_response = run_agent_sync("Get me exactly 5 of the most recent AI news articles published TODAY (July 1, 2025) or within the last 24-48 hours. Include exact publication dates, sources, and impactful headlines. Prioritize breaking news and current developments. Sort them by publication date with the newest first.")
+        current_date = datetime.now().strftime("%Y-%m-%d")
+        agent_response = run_agent_sync(
+            "IMPORTANT: Find EXACTLY 5 AI news articles from today. " +
+            "Search multiple sources if needed - tech sites, company blogs, research sites, and business news. " +
+            "Keep searching different sources until you have exactly 5 articles. " +
+            f"All articles must be from {current_date}. " +
+            "Include exact publication times. Sort by newest first."
+        )
         
         print(f"Agent response received: {len(agent_response)} characters")  # Debug logging
         
