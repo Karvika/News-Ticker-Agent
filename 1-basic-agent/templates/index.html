@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI News Ticker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: white;
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header .tags {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .tag {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        
+        .tag.google { background: #4285f4; color: white; }
+        .tag.live { background: #34a853; color: white; }
+        .tag.news { background: #ea4335; color: white; }
+        .tag.gemini { background: #9333ea; color: white; }
+        
+        .subtitle {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        
+        .last-refresh {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .refresh-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+        
+        .refresh-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .refresh-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .news-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e3f2fd;
+            border-top: 4px solid #2196f3;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .news-item {
+            border-left: 4px solid #2196f3;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            border-radius: 0 10px 10px 0;
+            transition: all 0.3s;
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        .news-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .news-item:nth-child(1) { border-left-color: #f44336; }
+        .news-item:nth-child(2) { border-left-color: #ff9800; }
+        .news-item:nth-child(3) { border-left-color: #4caf50; }
+        .news-item:nth-child(4) { border-left-color: #2196f3; }
+        .news-item:nth-child(5) { border-left-color: #9c27b0; }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .news-meta {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .news-date {
+            background: #2196f3;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+        }
+        
+        .news-source {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+        }
+        
+        .news-category {
+            background: #f3e5f5;
+            color: #7b1fa2;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+        }
+        
+        .news-headline {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        
+        .news-description {
+            color: #555;
+            line-height: 1.6;
+            font-size: 1em;
+        }
+        
+        .error-message {
+            background: #ffebee;
+            border: 1px solid #ffcdd2;
+            color: #c62828;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .empty-state h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        /* Auto-refresh indicator */
+        .auto-refresh {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(76, 175, 80, 0.9);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            z-index: 100;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s;
+        }
+        
+        .auto-refresh.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .header .tags {
+                flex-wrap: wrap;
+            }
+            
+            .news-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .news-headline {
+                font-size: 1.1em;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AI News Ticker</h1>
+            <div class="tags">
+                <span class="tag google">🔍 GOOGLE ADK</span>
+                <span class="tag live">🟢 LIVE</span>
+                <span class="tag news">📰 NEWS</span>
+                <span class="tag gemini">✨ GEMINI</span>
+            </div>
+            <p class="subtitle">Your real-time window into the world of technology. Get instant updates on software development, AI breakthroughs, and tech innovations as they happen.</p>
+            <div class="last-refresh">
+                <span>🕒 Last Refresh: <span id="lastRefreshTime">Loading...</span></span>
+            </div>
+            <button class="refresh-btn" onclick="refreshNews()" id="refreshBtn">🔄 Refresh News</button>
+        </div>
+        
+        <div class="news-container">
+            <div class="loading-overlay" id="loadingOverlay">
+                <div class="spinner"></div>
+                <span>Fetching latest AI news...</span>
+            </div>
+            
+            <div id="newsContent">
+                <div class="empty-state">
+                    <h3>Loading Latest AI News...</h3>
+                    <p>Please wait while we fetch the most recent AI developments for you.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="auto-refresh" id="autoRefreshIndicator">
+        🔄 Auto-refreshing news...
+    </div>
+
+    <script>
+        let refreshInterval;
+        const AUTO_REFRESH_MINUTES = 5; // Auto-refresh every 5 minutes
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadNews(true); // Show loading overlay on initial page load
+            startAutoRefresh();
+        });
+        
+        function startAutoRefresh() {
+            refreshInterval = setInterval(() => {
+                showAutoRefreshIndicator();
+                loadNews(false); // Auto-refresh without loading overlay
+            }, AUTO_REFRESH_MINUTES * 60 * 1000);
+        }
+        
+        function showAutoRefreshIndicator() {
+            const indicator = document.getElementById('autoRefreshIndicator');
+            indicator.classList.add('show');
+            setTimeout(() => {
+                indicator.classList.remove('show');
+            }, 3000);
+        }
+        
+        async function loadNews(showLoading = false) {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const newsContent = document.getElementById('newsContent');
+            const refreshBtn = document.getElementById('refreshBtn');
+            
+            try {
+                // Only show loading overlay on initial load
+                if (showLoading) {
+                    loadingOverlay.classList.add('active');
+                }
+                
+                // Always disable refresh button during loading
+                refreshBtn.disabled = true;
+                refreshBtn.textContent = '🔄 Loading...';
+                
+                const response = await fetch('/api/news');
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                displayNews(data.news);
+                updateLastRefreshTime();
+                
+            } catch (error) {
+                console.error('Error loading news:', error);
+                displayError(`Failed to load news: ${error.message}`);
+            } finally {
+                // Always remove loading overlay and reset button
+                loadingOverlay.classList.remove('active');
+                refreshBtn.disabled = false;
+                refreshBtn.textContent = '🔄 Refresh News';
+            }
+        }
+        
+        function displayNews(newsData) {
+            const newsContent = document.getElementById('newsContent');
+            
+            // Parse the news data and create HTML
+            const newsItems = parseNewsData(newsData);
+            
+            if (newsItems.length === 0) {
+                newsContent.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No News Available</h3>
+                        <p>No recent AI news found. Please try refreshing in a moment.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const newsHTML = newsItems.map((item, index) => `
+                <div class="news-item" style="animation-delay: ${index * 0.1}s">
+                    <div class="news-meta">
+                        <span class="news-date">${item.date}</span>
+                        <span class="news-source">${item.source}</span>
+                        <span class="news-category">Technology</span>
+                    </div>
+                    <div class="news-headline">${item.headline}</div>
+                    <div class="news-description">${item.description}</div>
+                </div>
+            `).join('');
+            
+            newsContent.innerHTML = newsHTML;
+        }
+        
+        function parseNewsData(newsData) {
+            // Parse the agent response to extract structured news data
+            const items = [];
+            
+            try {
+                console.log('Raw news data:', newsData); // Debug logging
+                
+                // Split by double newlines first, then by Date: pattern
+                let sections = newsData.split(/\n\s*\n/);
+                
+                // If that doesn't work, try splitting by Date: pattern
+                if (sections.length < 2) {
+                    sections = newsData.split(/(?=Date:\s*)/i);
+                }
+                
+                console.log('Parsed sections:', sections.length); // Debug logging
+                
+                for (let section of sections) {
+                    section = section.trim();
+                    if (section.length === 0) continue;
+                    
+                    const dateMatch = section.match(/Date:\s*([^\n\r]+)/i);
+                    const sourceMatch = section.match(/Source:\s*([^\n\r]+)/i);
+                    const headlineMatch = section.match(/Headline:\s*([^\n\r]+)/i);
+                    const descMatch = section.match(/Description:\s*([^]*?)(?=\n\s*Date:|$)/i);
+                    
+                    if (dateMatch && sourceMatch && headlineMatch && descMatch) {
+                        const item = {
+                            date: dateMatch[1].trim(),
+                            source: sourceMatch[1].trim(),
+                            headline: headlineMatch[1].trim(),
+                            description: descMatch[1].trim().replace(/\n+/g, ' ')
+                        };
+                        items.push(item);
+                        console.log('Parsed item:', item); // Debug logging
+                    }
+                }
+                
+                // If parsing fails, try alternative parsing
+                if (items.length === 0) {
+                    console.log('Alternative parsing...'); // Debug logging
+                    const lines = newsData.split('\n');
+                    let currentItem = {};
+                    
+                    for (let line of lines) {
+                        line = line.trim();
+                        if (line.startsWith('Date:')) {
+                            if (Object.keys(currentItem).length > 0) {
+                                items.push(currentItem);
+                            }
+                            currentItem = { date: line.replace('Date:', '').trim() };
+                        } else if (line.startsWith('Source:')) {
+                            currentItem.source = line.replace('Source:', '').trim();
+                        } else if (line.startsWith('Headline:')) {
+                            currentItem.headline = line.replace('Headline:', '').trim();
+                        } else if (line.startsWith('Description:')) {
+                            currentItem.description = line.replace('Description:', '').trim();
+                        } else if (currentItem.description && line.length > 0) {
+                            currentItem.description += ' ' + line;
+                        }
+                    }
+                    
+                    if (Object.keys(currentItem).length > 0) {
+                        items.push(currentItem);
+                    }
+                }
+                
+                // If still no items, create a fallback
+                if (items.length === 0) {
+                    items.push({
+                        date: new Date().toLocaleDateString(),
+                        source: 'AI News Assistant',
+                        headline: 'Latest AI News Update',
+                        description: newsData.substring(0, 300) + '...'
+                    });
+                }
+                
+                // Sort by date (newest first) and limit to 5 items
+                const sortedItems = items
+                    .filter(item => item.date && item.source && item.headline && item.description)
+                    .sort((a, b) => {
+                        const dateA = new Date(a.date);
+                        const dateB = new Date(b.date);
+                        return dateB - dateA; // Newest first
+                    })
+                    .slice(0, 5);
+                
+                console.log('Final parsed items:', sortedItems); // Debug logging
+                return sortedItems;
+                
+            } catch (error) {
+                console.error('Error parsing news data:', error);
+                return [{
+                    date: new Date().toLocaleDateString(),
+                    source: 'AI News Assistant',
+                    headline: 'AI News Update',
+                    description: 'Latest AI developments and technology news.'
+                }];
+            }
+        }
+        
+        function displayError(message) {
+            const newsContent = document.getElementById('newsContent');
+            newsContent.innerHTML = `
+                <div class="error-message">
+                    <strong>Error:</strong> ${message}
+                    <br><br>
+                    <button onclick="loadNews(false)" style="background: #2196f3; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                        Try Again
+                    </button>
+                </div>
+            `;
+        }
+        
+        function updateLastRefreshTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            document.getElementById('lastRefreshTime').textContent = timeString;
+        }
+        
+        async function refreshNews() {
+            // Manual refresh - no loading overlay, just update content
+            await loadNews(false);
+        }
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        });
+    </script>
+</body>
+</html>

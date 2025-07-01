@@ -1,124 +1,169 @@
-# Basic ADK Agent Example
+# AI News Ticker Agent
 
-## What is an ADK Agent?
+A modern web-based AI news ticker that fetches the latest artificial intelligence news using Google's Agent Development Kit (ADK) and displays them in a beautiful, real-time interface.
 
-The `LlmAgent` (often aliased simply as `Agent`) is a core component in ADK that acts as the "thinking" part of your application. It leverages the power of a Large Language Model (LLM) for:
-- Reasoning
-- Understanding natural language
-- Making decisions
-- Generating responses
-- Interacting with tools
+## 🌟 Features
 
-Unlike deterministic workflow agents that follow predefined paths, an `LlmAgent`'s behavior is non-deterministic. It uses the LLM to interpret instructions and context, deciding dynamically how to proceed, which tools to use (if any), or whether to transfer control to another agent.
+- **Real-time AI News**: Fetches current AI news using Google Search through ADK agents
+- **Modern UI**: Beautiful, responsive news ticker interface
+- **Auto-refresh**: Automatically updates every 5 minutes
+- **Manual Refresh**: One-click refresh without page reload
+- **Chronological Order**: Displays 5 latest articles sorted by publication date
+- **Detailed Articles**: Each article includes date, source, headline, and description
+- **Mock Mode**: Fallback demo mode when API key is not available
 
-## Required Agent Structure
+## 🚀 Quick Start
 
-For ADK to discover and run your agents properly (especially with `adk web`), your project must follow a specific structure:
+### Prerequisites
+
+- Python 3.8+
+- Google API Key for Gemini
+- Git
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Karvika/News-Ticker-Agent.git
+   cd News-Ticker-Agent
+   ```
+
+2. **Run the setup script**
+   ```bash
+   # On Windows
+   setup.bat
+   
+   # Or manually:
+   pip install -r requirements.txt
+   ```
+
+3. **Configure your API key**
+   - Create a `.env` file in the `greeting_agent/` directory
+   - Add your Google API key:
+     ```
+     GOOGLE_GENAI_USE_VERTEXAI=FALSE
+     GOOGLE_API_KEY=your_api_key_here
+     ```
+   - Get your API key from: https://aistudio.google.com/app/apikey
+
+4. **Run the application**
+   ```bash
+   # On Windows
+   run.bat
+   
+   # Or manually:
+   python app.py
+   ```
+
+5. **Open your browser**
+   Navigate to `http://localhost:5000`
+
+## 📁 Project Structure
 
 ```
-parent_folder/
-    agent_folder/         # This is your agent's package directory
-        __init__.py       # Must import agent.py
-        agent.py          # Must define root_agent
-        .env              # Environment variables
+├── app.py                 # Flask backend server
+├── requirements.txt       # Python dependencies
+├── setup.bat             # Windows setup script
+├── run.bat               # Windows run script
+├── templates/
+│   └── index.html        # Frontend news ticker interface
+├── greeting_agent/
+│   ├── agent.py          # ADK agent configuration
+│   └── .env              # Environment variables (API key)
+└── README.md             # This file
 ```
 
-### Essential Components:
+## 🔧 How It Works
 
-1. **`__init__.py`**
-   - Must import the agent module: `from . import agent`
-   - This makes your agent discoverable by ADK
+### Backend (Flask)
+- **`app.py`**: Main Flask server with `/api/news` and `/api/refresh` endpoints
+- **Agent Integration**: Uses ADK agents to fetch real AI news
+- **Mock Mode**: Provides demo data when API key is missing
 
-2. **`agent.py`**
-   - Must define a variable named `root_agent`
-   - This is the entry point that ADK uses to find your agent
+### AI Agent System
+- **Search Specialist**: Uses Google Search to find current AI news
+- **Formatter Agent**: Formats articles into consistent structure
+- **Root Agent**: Orchestrates the news fetching process
 
-3. **Command Location**
-   - Always run `adk` commands from the parent directory, not from inside the agent directory
-   - Example: Run `adk web` from the parent folder that contains your agent folder
+### Frontend
+- **Modern UI**: Responsive design with news cards
+- **Auto-refresh**: Updates every 5 minutes automatically
+- **Manual Refresh**: Click button for immediate updates
+- **Real-time Display**: Shows 5 most recent articles
 
-This structure ensures that ADK can automatically discover and load your agent when running commands like `adk web` or `adk run`.
+## 🎯 Features in Detail
 
-## Key Components
+### News Format
+Each news article displays:
+- **Date**: Actual publication date
+- **Source**: News publication name
+- **Headline**: Full article headline
+- **Description**: 2-3 sentence summary
 
-### 1. Identity (`name` and `description`)
-- **name** (Required): A unique string identifier for your agent
-- **description** (Optional, but recommended): A concise summary of the agent's capabilities. Used for other agents to determine if they should route a task to this agent.
+### Refresh Modes
+- **Initial Load**: Shows loading overlay
+- **Manual Refresh**: Silent update without loading screen
+- **Auto Refresh**: Background updates every 5 minutes
 
-### 2. Model (`model`)
-- Specifies which LLM powers the agent (e.g., "gemini-2.0-flash")
-- Affects the agent's capabilities, cost, and performance
+## 🛠️ Configuration
 
-### 3. Instructions (`instruction`)
-The most critical parameter for shaping your agent's behavior. It defines:
-- Core task or goal
-- Personality or persona
-- Behavioral constraints
-- How to use available tools
-- Desired output format
-
-### 4. Tools (`tools`)
-Optional capabilities beyond the LLM's built-in knowledge, allowing the agent to:
-- Interact with external systems
-- Perform calculations
-- Fetch real-time data
-- Execute specific actions
-
-## Getting Started
-
-This example uses the same virtual environment created in the root directory. Make sure you have:
-
-1. Activated the virtual environment from the root directory:
-```bash
-# macOS/Linux:
-source ../.venv/bin/activate
-# Windows CMD:
-..\.venv\Scripts\activate.bat
-# Windows PowerShell:
-..\.venv\Scripts\Activate.ps1
+### Environment Variables
+Create `greeting_agent/.env`:
+```
+GOOGLE_GENAI_USE_VERTEXAI=FALSE
+GOOGLE_API_KEY=your_google_api_key
 ```
 
-2. Set up your API key:
-   - Rename `.env.example` to `.env` in the greeting_agent folder
-   - Add your Google API key to the `GOOGLE_API_KEY` variable in the `.env` file
+### Agent Configuration
+The system uses three specialized agents:
+1. **Search Specialist**: Finds recent AI news using Google Search
+2. **Formatter Agent**: Structures articles consistently
+3. **Root Agent**: Coordinates the entire process
 
-## Running the Example
+## 🌐 API Endpoints
 
-To run this basic agent example, you'll use the ADK CLI tool which provides several ways to interact with your agent:
+- `GET /` - Main news ticker interface
+- `GET /api/news` - Fetch latest AI news (JSON)
+- `POST /api/refresh` - Manual refresh endpoint
 
-1. Navigate to the 1-basic-agent directory containing your agent folder.
-2. Start the interactive web UI:
-```bash
-adk web
-```
+## 📱 Browser Support
 
-3. Access the web UI by opening the URL shown in your terminal (typically http://localhost:8000)
+- Chrome (recommended)
+- Firefox
+- Safari
+- Edge
 
-4. Select your agent from the dropdown menu in the top-left corner of the UI
+## 🔒 Security
 
-5. Start chatting with your agent in the textbox at the bottom of the screen
+- API keys stored in environment variables
+- No sensitive data in frontend
+- CORS enabled for development
 
-### Troubleshooting
+## 🤝 Contributing
 
-If your agent doesn't appear in the dropdown menu:
-- Make sure you're running `adk web` from the parent directory (1-basic-agent), not from inside the agent directory
-- Check that your `__init__.py` properly imports the agent module
-- Verify that `agent.py` defines a variable named `root_agent`
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
-### Alternative Run Methods
+## 📄 License
 
-The ADK CLI tool provides several options:
+This project is licensed under the MIT License.
 
-- **`adk web`**: Launches an interactive web UI for testing your agent with a chat interface
-- **`adk run [agent_name]`**: Runs your agent directly in the terminal
-- **`adk api_server`**: Starts a FastAPI server to test API requests to your agent
+## 🙏 Acknowledgments
 
-### Example Prompts to Try
+- Built with Google's Agent Development Kit (ADK)
+- Uses Google Search for news retrieval
+- Modern UI inspired by contemporary news platforms
 
-- "How do you say hello in Spanish?"
-- "What's a formal greeting in Japanese?"
-- "Tell me how to greet someone in French"
+## 📞 Support
 
-You can exit the conversation or stop the server by pressing `Ctrl+C` in your terminal.
+For issues and questions:
+- Create an issue on GitHub
+- Check the console logs for debugging
+- Ensure your API key is properly configured
 
-This example demonstrates a simple agent that responds to greeting-related queries, showing the fundamentals of agent creation with ADK.
+---
+
+**Made with ❤️ for staying updated with the latest in AI**
