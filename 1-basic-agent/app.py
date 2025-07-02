@@ -135,11 +135,19 @@ Headline: [Test] Mock News 5 - Final test headline"""
             if hasattr(event, 'content') and event.content:
                 if hasattr(event.content, 'parts') and event.content.parts:
                     for part in event.content.parts:
-                        if hasattr(part, 'text') and part.text:
-                            final_response = part.text
+                        if hasattr(part, 'text'):
+                            text = part.text
+                            # Handle bytes response
+                            if isinstance(text, bytes):
+                                text = text.decode('utf-8')
+                            final_response = text
                             break
                 elif hasattr(event.content, 'text'):
-                    final_response = event.content.text
+                    text = event.content.text
+                    # Handle bytes response
+                    if isinstance(text, bytes):
+                        text = text.decode('utf-8')
+                    final_response = text
         
         return final_response or "No response received from agent"
         
