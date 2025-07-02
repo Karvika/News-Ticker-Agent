@@ -3,16 +3,6 @@ from google.adk.tools.agent_tool import AgentTool
 from google.adk.tools import google_search
 
 
-# Define a helper to ensure serialization-safe output
-def decode_bytes_in_output(output):
-    if isinstance(output, bytes):
-        return output.decode('utf-8', errors='ignore')
-    elif isinstance(output, dict):
-        return {k: decode_bytes_in_output(v) for k, v in output.items()}
-    elif isinstance(output, list):
-        return [decode_bytes_in_output(i) for i in output]
-    else:
-        return output
 
 
 search_specialist = Agent(

@@ -39,14 +39,16 @@ except ImportError as e:
     root_agent = None
     runner = None
 
-def decode_bytes(obj):
-    if isinstance(obj, bytes):
-        return obj.decode("utf-8", errors="ignore")
-    elif isinstance(obj, dict):
-        return {k: decode_bytes(v) for k, v in obj.items()}
-    elif isinstance(obj, list):
-        return [decode_bytes(i) for i in obj]
-    return obj
+def decode_bytes(output):
+    """Helper function to ensure serialization-safe output by decoding any bytes objects"""
+    if isinstance(output, bytes):
+        return output.decode('utf-8', errors='ignore')
+    elif isinstance(output, dict):
+        return {k: decode_bytes(v) for k, v in output.items()}
+    elif isinstance(output, list):
+        return [decode_bytes(i) for i in output]
+    else:
+        return output
 
 async def run_agent_async(user_message):
     if not ADK_AVAILABLE:
