@@ -164,6 +164,26 @@
             margin-left: 8px;
         }
         
+        .auto-refresh {
+            text-align: center;
+            margin: 20px 0;
+            color: rgba(255,255,255,0.9);
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .refresh-status {
+            color: rgba(255,255,255,0.8);
+        }
+        
+        .countdown {
+            font-weight: 500;
+            color: rgba(255,255,255,0.9);
+        }
+        
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -202,17 +222,23 @@
                     Refresh News
                 </button>
             </div>
+            <div class="auto-refresh">
+                <span class="refresh-status">Auto-refreshing every 5 minute</span>
+                <span id="countdown" class="countdown"></span>
+            </div>
         </header>
 
-        <main class="news-container" id="news-container">
-            <div id="loading" style="text-align: center; padding: 20px;">
-                Loading news...
-            </div>
-        </main>
+        <div class="news-container" id="news-container">
+            <div id="loading" class="loading">Loading news...</div>
+        </div>
     </div>
 
     <script>
         let isRefreshing = false;
+        let autoRefreshInterval;
+        let countdownInterval;
+        let nextRefreshTime;
+        const REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes in milliseconds
         
         function formatDate(dateString) {
             const date = new Date(dateString);
@@ -276,18 +302,29 @@
             refreshBtn.disabled = true;
             isRefreshing = true;
             
-            document.getElementById('loading').style.display = 'block';
+            const loadingEl = document.getElementById('loading');
+            if (loadingEl) loadingEl.style.display = 'block';
             
             try {
-                const response = await fetch('/api/refresh');
+                const response = await fetch('/api/news');
                 if (!response.ok) throw new Error('Failed to refresh news');
-                await loadNews();
+                const news = await response.json();
+                console.log('Received news:', news);  // Debug log
+                
+                if (Array.isArray(news)) {
+                    updateNews(news);
+                    document.getElementById('last-refresh').textContent = new Date().toLocaleTimeString();
+                } else {
+                    console.error('News is not an array:', news);
+                    throw new Error('Invalid news format');
+                }
             } catch (error) {
                 console.error('Error refreshing news:', error);
                 document.getElementById('news-container').innerHTML = 
                     '<div style="text-align: center; padding: 20px; color: red;">Error refreshing news. Please try again later.</div>';
             } finally {
-                document.getElementById('loading').style.display = 'none';
+                const loadingEl = document.getElementById('loading');
+                if (loadingEl) loadingEl.style.display = 'none';
                 refreshBtn.disabled = false;
                 isRefreshing = false;
             }
@@ -296,12 +333,20 @@
         async function loadNews() {
             try {
                 const response = await fetch('/api/news');
-                if (!response.ok) throw new Error('Failed to load news');
+                if (!response.ok) {
+                    throw new Error(`Failed to load news: ${response.status} ${response.statusText}`);
+                }
                 
                 const news = await response.json();
-                updateNews(news);
+                console.log('Received news:', news);  // Debug log
                 
-                document.getElementById('last-refresh').textContent = new Date().toLocaleTimeString();
+                if (Array.isArray(news)) {
+                    updateNews(news);
+                    document.getElementById('last-refresh').textContent = new Date().toLocaleTimeString();
+                } else {
+                    console.error('News is not an array:', news);
+                    throw new Error('Invalid news format');
+                }
             } catch (error) {
                 console.error('Error loading news:', error);
                 document.getElementById('news-container').innerHTML = 
@@ -309,11 +354,33 @@
             }
         }
         
-        // Auto-refresh every 5 minutes
-        setInterval(loadNews, 5 * 60 * 1000);
+        function updateCountdown() {
+            const now = new Date();
+            const diff = nextRefreshTime - now;
+            const minutes = Math.floor(diff / 60000);
+            const seconds = Math.floor((diff % 60000) / 1000);
+            
+            document.getElementById('countdown').textContent = 
+                `Next refresh in ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            
+            if (diff <= 0) {
+                refreshNews();
+                startAutoRefresh();
+            }
+        }
         
-        // Initial load
+        function startAutoRefresh() {
+            nextRefreshTime = new Date(Date.now() + REFRESH_INTERVAL);
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+            countdownInterval = setInterval(updateCountdown, 1000);
+            updateCountdown();
+        }
+
+        // Initial load and start auto-refresh
         loadNews();
+        startAutoRefresh();
     </script>
 </body>
 </html>
